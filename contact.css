@@ -1,0 +1,29 @@
+/* contact.css for From Zero to Zeta */
+
+main.contact {
+  padding: 2rem;
+  max-width: 700px;
+  margin: auto;
+  text-align: center;
+}
+
+main.contact h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+main.contact p {
+  font-size: 1.15rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+main.contact a {
+  color: var(--link-color);
+  font-weight: bold;
+}
+
+main.contact a:hover {
+  text-decoration: underline;
+}
