@@ -82,52 +82,63 @@ function renderTimeSelection() {
     row.appendChild(dayCell);
 
     for (let hour = slot.start; hour < slot.end; hour++) {
-      const cell = document.createElement("td");
-      const label = `${slot.day} ${hour}:00`;
-      cell.textContent = `${hour}:00`;
-      cell.classList.add("clickable-row");
-      cell.dataset.label = label;
+      for (let quarter = 0; quarter < 4; quarter++) {
+        const cell = document.createElement("td");
+        const minute = quarter * 15;
+        const suffix = hour < 12 ? "am" : "pm";
+        const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+        const displayMin = minute === 0 ? ":00" : minute === 15 ? ":15" : minute === 30 ? ":30" : ":45";
+        const hourDisplay = `${displayHour}${displayMin}${suffix}`;
+        const label = `${slot.day} ${hour}:${minute < 10 ? '0' + minute : minute}`;
+        cell.textContent = hourDisplay;
+        cell.classList.add("clickable-row");
+        cell.dataset.label = label;
 
-      cell.addEventListener("click", () => {
-        const label = cell.dataset.label;
+        cell.addEventListener("click", () => {
+          const label = cell.dataset.label;
 
-        if (selectingStartTime) {
-          currentSelection.start = label;
-          selectedTimeSlots.push({ start: label });
-          cell.classList.add("selected");
-          currentSelection.startCell = cell;
-          selectingStartTime = false;
-        } else {
-          currentSelection.end = label;
-          const lastSlot = selectedTimeSlots[selectedTimeSlots.length - 1];
-          lastSlot.end = label;
+          if (selectingStartTime) {
+            currentSelection.start = label;
+            selectedTimeSlots.push({ start: label });
+            cell.classList.add("selected");
+            currentSelection.startCell = cell;
+            selectingStartTime = false;
+          } else {
+            currentSelection.end = label;
+            const lastSlot = selectedTimeSlots[selectedTimeSlots.length - 1];
+            lastSlot.end = label;
 
-          const startParts = currentSelection.start.split(" ");
-          const endParts = currentSelection.end.split(" ");
+            const [dayStart, timeStart] = currentSelection.start.split(" ");
+            const [dayEnd, timeEnd] = currentSelection.end.split(" ");
 
-          if (startParts[0] === endParts[0]) {
-            const day = startParts[0];
-            const startHour = parseInt(startParts[1]);
-            const endHour = parseInt(endParts[1]);
-            const low = Math.min(startHour, endHour);
-            const high = Math.max(startHour, endHour);
+            if (dayStart === dayEnd) {
+              const day = dayStart;
+              const timeToFloat = time => {
+                const [h, m] = time.split(":".replace(/(am|pm)/g, "")).map(Number);
+                return h + (m === 30 ? 0.5 : 0);
+              };
+              const start = parseFloat(timeStart.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
+              const end = parseFloat(timeEnd.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
+              const low = Math.min(start, end);
+              const high = Math.max(start, end);
 
-            const row = currentSelection.startCell.closest("tr");
-            Array.from(row.children).forEach(cell => {
-              if (cell.dataset.label && cell.dataset.label.startsWith(day)) {
-                const hour = parseInt(cell.dataset.label.split(" ")[1]);
-                if (hour >= low && hour <= high) {
-                  cell.classList.add("selected");
+              const row = currentSelection.startCell.closest("tr");
+              Array.from(row.children).forEach(cell => {
+                if (cell.dataset.label && cell.dataset.label.startsWith(day)) {
+                  const hour = parseFloat(cell.dataset.label.split(" ")[1].replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
+                  if (hour >= low && hour <= high) {
+                    cell.classList.add("selected");
+                  }
                 }
-              }
-            });
+              });
+            }
+            selectingStartTime = true;
           }
-          selectingStartTime = true;
-        }
-        console.log("Current selection:", selectedTimeSlots);
-      });
+          console.log("Current selection:", selectedTimeSlots);
+        });
 
-      row.appendChild(cell);
+        row.appendChild(cell);
+      }
     }
     tbody.appendChild(row);
   });
