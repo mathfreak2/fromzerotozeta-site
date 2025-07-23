@@ -89,11 +89,42 @@ function renderTimeSelection() {
       cell.dataset.label = label;
 
       cell.addEventListener("click", () => {
-        cell.classList.toggle("selected");
-        if (selectedTimeSlots.includes(label)) {
-          selectedTimeSlots = selectedTimeSlots.filter(t => t !== label);
+        const label = cell.dataset.label;
+
+        if (selectingStartTime) {
+          currentSelection.start = label;
+          selectedTimeSlots.push({ start: label });
+          cell.classList.add("selected");
+          currentSelection.startCell = cell;
+          selectingStartTime = false;
         } else {
-          selectedTimeSlots.push(label);
+          currentSelection.end = label;
+          const lastSlot = selectedTimeSlots[selectedTimeSlots.length - 1];
+          lastSlot.end = label;
+
+          const startParts = currentSelection.start.split(" ");
+          const endParts = currentSelection.end.split(" ");
+
+          if (startParts[0] === endParts[0]) {
+            const day = startParts[0];
+            const startHour = parseInt(startParts[1]);
+            const endHour = parseInt(endParts[1]);
+            const low = Math.min(startHour, endHour);
+            const high = Math.max(startHour, endHour);
+
+            const row = currentSelection.startCell.closest("tr");
+            Array.from(row.children).forEach(cell => {
+              if (cell.dataset.label && cell.dataset.label.startsWith(day)) {
+                const hour = parseInt(cell.dataset.label.split(" ")[1]);
+                if (hour >= low && hour <= high) {
+                  cell.classList.add("selected");
+                }
+              }
+            });
+          }
+          selectingStartTime = true;
+        }
+        console.log("Current selection:", selectedTimeSlots);
         }
         console.log("Current selection:", selectedTimeSlots);
       });
@@ -119,8 +150,8 @@ function renderTimeSelection() {
   nextBtn.className = "next";
   nextBtn.textContent = "Next";
   nextBtn.onclick = () => {
-    if (selectedTimeSlots.length === 0) {
-      alert("Please select at least one time slot before continuing.");
+    if (selectedTimeSlots.length === 0 || !selectingStartTime) {
+      alert("Please select at least one complete time range before continuing.");
       return;
     }
     // TODO: reserve slots and proceed to payment screen
@@ -173,6 +204,8 @@ function renderTimeSelection() {
   
     let selectedLevel = null;
 let selectedTimeSlots = [];
+let selectingStartTime = true;
+let currentSelection = {};
   
     function handleLevelSelection(level) {
   selectedLevel = level;
