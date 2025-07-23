@@ -11,8 +11,7 @@
     { day: "Thursday", start: 12, end: 20 }
   ]; // Availability in 24-hour format, easy to update
     const introSection = document.querySelector(".intro");
-
-  let selectedFormat = null;
+// removed duplicate declaration of selectedFormat
   let selectedLevel = null;
   let selectedTimeSlots = [];
   let selectingStartTime = true;
@@ -230,8 +229,7 @@ function renderTimeSelection() {
     tbody.appendChild(row);
   });
   });
-
-  table.appendChild(tbody);
+table.appendChild(tbody);
   section.appendChild(table);
 
   const controls = document.createElement("div");
