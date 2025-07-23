@@ -46,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
       introSection.appendChild(launchButton);
       launchButton.style.display = "block";
     };
-    };
     controls.appendChild(cancelBtn);
     section.appendChild(controls);
 
