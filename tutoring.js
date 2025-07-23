@@ -125,8 +125,6 @@ function renderTimeSelection() {
           selectingStartTime = true;
         }
         console.log("Current selection:", selectedTimeSlots);
-        }
-        console.log("Current selection:", selectedTimeSlots);
       });
 
       row.appendChild(cell);
