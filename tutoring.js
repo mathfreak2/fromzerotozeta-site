@@ -240,7 +240,6 @@ table.appendChild(tbody);
   backBtn.onclick = () => renderLevelStep();
   controls.appendChild(backBtn);
 
-  const nextBtn = document.createElement("button");
   nextBtn.className = "next";
   nextBtn.textContent = "Next";
   nextBtn.onclick = () => {
