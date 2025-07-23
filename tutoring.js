@@ -11,6 +11,12 @@
     { day: "Thursday", start: 12, end: 20 }
   ]; // Availability in 24-hour format, easy to update
     const introSection = document.querySelector(".intro");
+
+  let selectedFormat = null;
+  let selectedLevel = null;
+  let selectedTimeSlots = [];
+  let selectingStartTime = true;
+  let currentSelection = {};
   
     // Reference pricing tables from static HTML
     const formatPricingTable = document.querySelector(".pricing-table.format");
@@ -293,10 +299,7 @@ function renderTimeSelection() {
       appContainer.appendChild(section);
     }
   
-    let selectedLevel = null;
-let selectedTimeSlots = [];
-let selectingStartTime = true;
-let currentSelection = {};
+    
   
     function handleLevelSelection(level) {
   selectedLevel = level;
