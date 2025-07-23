@@ -78,7 +78,7 @@ function renderTimeSelection() {
   prevBtn.textContent = "← Previous Week";
   prevBtn.disabled = true;
 
-  const nextBtn = document.createElement("button");
+  const nextBtn = document.createElement("button"); // moved inside renderTimeSelection
   nextBtn.textContent = "Next Week →";
 
   const weekInfo = document.createElement("span");
@@ -94,153 +94,7 @@ function renderTimeSelection() {
 
   updateWeekDisplay();
 
-  nextBtn.onclick = () => {
-    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-    prevBtn.disabled = false;
-    updateWeekDisplay();
-    renderTimeSelection();
-  };
-
-  prevBtn.onclick = () => {
-    const today = new Date();
-    const thisWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1));
-    if (currentWeekStart > thisWeek) {
-      currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-      updateWeekDisplay();
-      if (currentWeekStart <= thisWeek) prevBtn.disabled = true;
-      renderTimeSelection();
-    }
-  };
-
-  nav.appendChild(prevBtn);
-  nav.appendChild(weekInfo);
-  nav.appendChild(nextBtn);
-  section.appendChild(nav);
-  section.appendChild(heading);
-
-  const info = document.createElement("p");
-  info.textContent = "Click on available blocks to select. You'll be able to confirm and proceed to payment after clicking Next.";
-  section.appendChild(info);
-
-  const gridContainer = document.createElement("div");
-gridContainer.className = "availability-grid";
-
-weeklyAvailability.forEach(slot => {
-  const dayOffset = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].indexOf(slot.day);
-  const currentDate = new Date(currentWeekStart);
-  currentDate.setDate(currentWeekStart.getDate() + dayOffset);
-  const dateLabel = currentDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-
-  const dayColumn = document.createElement("div");
-  dayColumn.className = "day-column";
-
-  const dayHeader = document.createElement("div");
-  dayHeader.className = "day-header";
-  dayHeader.innerHTML = `<strong>${slot.day}</strong><br><small>${dateLabel}</small>`;
-  dayColumn.appendChild(dayHeader);
-
-  for (let hour = slot.start; hour < slot.end; hour++) {
-    for (let quarter = 0; quarter < 4; quarter++) {
-      const cell = document.createElement("div");
-      cell.className = "time-block clickable-row";
-
-      const minute = quarter * 15;
-      const suffix = hour < 12 ? "am" : "pm";
-      const displayHour = hour % 12 === 0 ? 12 : hour % 12;
-      const displayMin = minute === 0 ? ":00" : minute === 15 ? ":15" : minute === 30 ? ":30" : ":45";
-      const hourDisplay = `${displayHour}${displayMin}${suffix}`;
-
-      const label = `${slot.day} ${hour}:${minute < 10 ? '0' + minute : minute}`;
-      cell.dataset.label = label;
-      cell.textContent = hourDisplay;
-
-      cell.addEventListener("click", () => {
-        const label = cell.dataset.label;
-
-        if (selectingStartTime) {
-          currentSelection.start = label;
-          selectedTimeSlots.push({ start: label });
-          cell.classList.add("selected");
-          currentSelection.startCell = cell;
-          selectingStartTime = false;
-
-          const startDay = label.split(" ")[0];
-          const allBlocks = document.querySelectorAll(`.time-block[data-label^='${startDay}']`);
-
-          allBlocks.forEach(block => {
-            block.addEventListener("mouseenter", () => {
-              const endLabel = block.dataset.label;
-              const [_, endTime] = endLabel.split(" ");
-              const end = parseFloat(endTime.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
-              const [__, startTime] = currentSelection.start.split(" ");
-              const start = parseFloat(startTime.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
-              const low = Math.min(start, end);
-              const high = Math.max(start, end);
-
-              allBlocks.forEach(cell => {
-                const cellTime = parseFloat(cell.dataset.label.split(" ")[1].replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
-                cell.classList.remove("hover-highlight");
-                if (cellTime >= low && cellTime <= high) {
-                  cell.classList.add("hover-highlight");
-                }
-              });
-            });
-
-            block.addEventListener("mouseleave", () => {
-              allBlocks.forEach(cell => cell.classList.remove("hover-highlight"));
-            });
-          });
-        } else {
-          currentSelection.end = label;
-          const lastSlot = selectedTimeSlots[selectedTimeSlots.length - 1];
-          lastSlot.end = label;
-
-          const [dayStart, timeStart] = currentSelection.start.split(" ");
-          const [dayEnd, timeEnd] = currentSelection.end.split(" ");
-
-          if (dayStart === dayEnd) {
-            const day = dayStart;
-            const start = parseFloat(timeStart.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
-            const end = parseFloat(timeEnd.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
-            const low = Math.min(start, end);
-            const high = Math.max(start, end);
-
-            const blocks = dayColumn.querySelectorAll(".time-block");
-            blocks.forEach(cell => {
-              if (cell.dataset.label && cell.dataset.label.startsWith(day)) {
-                const hour = parseFloat(cell.dataset.label.split(" ")[1].replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
-                if (hour >= low && hour <= high) {
-                  cell.classList.add("selected");
-                }
-              }
-            });
-          }
-          selectingStartTime = true;
-        }
-        console.log("Current selection:", selectedTimeSlots);
-      });
-
-      dayColumn.appendChild(cell);
-    }
-  }
-
-  gridContainer.appendChild(dayColumn);
-});
-
-section.appendChild(gridContainer);
-
-  const controls = document.createElement("div");
-  controls.className = "scheduler-controls";
-
-  const backBtn = document.createElement("button");
-  backBtn.className = "back";
-  backBtn.textContent = "Back";
-  backBtn.onclick = () => renderLevelStep();
-  controls.appendChild(backBtn);
-
-  nextBtn.className = "next";
-  nextBtn.textContent = "Next";
-  nextBtn.onclick = () => {
+  nextBtn2.onclick = () => {
     if (selectedTimeSlots.length === 0 || !selectingStartTime) {
       alert("Please select at least one complete time range before continuing.");
       return;
@@ -248,7 +102,7 @@ section.appendChild(gridContainer);
     // TODO: reserve slots and proceed to payment screen
     console.log("Proceeding with:", selectedTimeSlots);
   };
-  controls.appendChild(nextBtn);
+  controls.appendChild(nextBtn2);
 
   section.appendChild(controls);
   appContainer.appendChild(section);
