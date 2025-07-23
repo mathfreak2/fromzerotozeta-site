@@ -32,6 +32,10 @@ main.tutoring p {
   background-color: #3a0066;
 }
 
+.intro {
+  text-align: center;
+}
+
 #scheduler-app {
   margin-top: 2rem;
   text-align: left;
