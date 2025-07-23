@@ -42,22 +42,7 @@
       cancelBtn.className = "cancel";
       cancelBtn.textContent = "Cancel";
       cancelBtn.onclick = () => {
-        appContainer.innerHTML = "";
-
-        // Reset intro content without altering structure
-        const title = introSection.querySelector("h1") || document.createElement("h1");
-        const paragraph = introSection.querySelector("p") || document.createElement("p");
-
-        title.textContent = "Schedule a Tutoring Session";
-        paragraph.textContent = "Choose your preferred format, subject, and time. All sessions are priced based on format and topic. Payments are handled securely through PayPal. All times shown are in Pacific Time (PST/PDT).";
-
-        introSection.innerHTML = "";
-        introSection.appendChild(title);
-        introSection.appendChild(paragraph);
-        introSection.appendChild(launchButton);
-
-        launchButton.style.display = "block";
-
+        window.location.reload();
       };
       controls.appendChild(cancelBtn);
       section.appendChild(controls);
