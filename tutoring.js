@@ -44,20 +44,20 @@
       cancelBtn.onclick = () => {
         appContainer.innerHTML = "";
 
-        // Clear and reset the intro section content
-        introSection.innerHTML = "";
+        // Reset intro content without altering structure
+        const title = introSection.querySelector("h1") || document.createElement("h1");
+        const paragraph = introSection.querySelector("p") || document.createElement("p");
 
-        const title = document.createElement("h1");
         title.textContent = "Schedule a Tutoring Session";
-
-        const paragraph = document.createElement("p");
         paragraph.textContent = "Choose your preferred format, subject, and time. All sessions are priced based on format and topic. Payments are handled securely through PayPal. All times shown are in Pacific Time (PST/PDT).";
 
+        introSection.innerHTML = "";
         introSection.appendChild(title);
         introSection.appendChild(paragraph);
         introSection.appendChild(launchButton);
 
         launchButton.style.display = "block";
+
       };
       controls.appendChild(cancelBtn);
       section.appendChild(controls);
