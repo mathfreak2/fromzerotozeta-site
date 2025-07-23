@@ -236,3 +236,9 @@ main.tutoring p {
   font-weight: bold;
   border-left: 3px solid #003366;
 }
+
+.time-block.hover-highlight {
+  background-color: #d9f0ff;
+  border-left: 3px solid #007acc;
+  font-weight: bold;
+}
