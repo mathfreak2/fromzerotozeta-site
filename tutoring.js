@@ -257,8 +257,6 @@ table.appendChild(tbody);
   appContainer.appendChild(section);
     }
   
-    let selectedFormat = null;
-  
     function handleFormatSelection(format) {
       selectedFormat = format;
       renderLevelStep();
