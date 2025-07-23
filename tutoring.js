@@ -228,7 +228,6 @@ function renderTimeSelection() {
     }
     tbody.appendChild(row);
   });
-  });
 table.appendChild(tbody);
   section.appendChild(table);
 
