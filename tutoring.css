@@ -189,3 +189,50 @@ main.tutoring p {
   background-color: #cde8ff;
   font-weight: bold;
 }
+
+.availability-grid {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.day-column {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ccc;
+  min-width: 110px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.day-header {
+  background-color: #003366;
+  color: white;
+  text-align: center;
+  padding: 0.5rem 0.25rem;
+  font-weight: bold;
+  border-bottom: 1px solid #ccc;
+}
+
+.time-block {
+  padding: 0.5rem 0.25rem;
+  border-top: 1px solid #ddd;
+  text-align: center;
+  font-size: 0.85rem;
+  background-color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.time-block:hover {
+  background-color: #eef3ff;
+}
+
+.time-block.selected {
+  background-color: #cde4ff;
+  font-weight: bold;
+  border-left: 3px solid #003366;
+}
