@@ -74,6 +74,16 @@ function renderTimeSelection() {
   const nav = document.createElement("div");
   nav.className = "week-nav";
 
+  const weekControls = document.createElement("div");
+  weekControls.className = "week-controls";
+
+  const prevWeekBtn = document.createElement("button");
+  prevWeekBtn.textContent = "← Previous Week";
+  prevWeekBtn.disabled = true;
+
+  const nextWeekBtn = document.createElement("button");
+  nextWeekBtn.textContent = "Next Week →";
+
   const prevBtn = document.createElement("button");
   prevBtn.textContent = "← Previous Week";
   prevBtn.disabled = true;
@@ -93,6 +103,29 @@ function renderTimeSelection() {
   }
 
   updateWeekDisplay();
+
+  nextWeekBtn.onclick = () => {
+    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+    prevWeekBtn.disabled = false;
+    updateWeekDisplay();
+    renderTimeSelection();
+  };
+
+  prevWeekBtn.onclick = () => {
+    const thisWeek = new Date();
+    const startOfWeek = new Date(thisWeek.setDate(thisWeek.getDate() - thisWeek.getDay() + 1));
+    if (currentWeekStart > startOfWeek) {
+      currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+      updateWeekDisplay();
+      if (currentWeekStart <= startOfWeek) prevWeekBtn.disabled = true;
+      renderTimeSelection();
+    }
+  };
+
+  weekControls.appendChild(prevWeekBtn);
+  weekControls.appendChild(weekInfo);
+  weekControls.appendChild(nextWeekBtn);
+  nav.appendChild(weekControls);
 
   nextBtn2.onclick = () => {
     if (selectedTimeSlots.length === 0 || !selectingStartTime) {
