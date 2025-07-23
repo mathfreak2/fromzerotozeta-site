@@ -43,8 +43,10 @@ document.addEventListener("DOMContentLoaded", () => {
     cancelBtn.textContent = "Cancel";
     cancelBtn.onclick = () => {
       appContainer.innerHTML = "";
+      introSection.innerHTML = "";
       introSection.appendChild(launchButton);
       launchButton.style.display = "block";
+    };
     };
     controls.appendChild(cancelBtn);
     section.appendChild(controls);
