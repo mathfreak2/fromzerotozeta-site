@@ -155,3 +155,37 @@ main.tutoring p {
 .clickable-row:hover {
   background-color: #eef5ff;
 }
+
+.availability-table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.availability-table td {
+  border: 1px solid #ccc;
+  text-align: center;
+  padding: 0.5rem;
+  min-width: 60px;
+  word-wrap: break-word;
+  font-size: 0.9rem;
+}
+
+.availability-table tr:first-child td {
+  font-weight: bold;
+  background-color: #f0f0f0;
+}
+
+.availability-table .clickable-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.availability-table .clickable-row:hover {
+  background-color: #eef5ff;
+}
+
+.availability-table .selected {
+  background-color: #cde8ff;
+  font-weight: bold;
+}
