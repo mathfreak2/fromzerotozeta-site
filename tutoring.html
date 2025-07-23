@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutoring | From Zero to Zeta</title>
+  <link rel="icon" href="/assets/logo.png" type="image/png" />
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/tutoring.css" />
+  <script src="/script.js" defer></script>
+  <script src="/tutoring.js" defer></script>
+</head>
+<body>
+  <header>
+    <img src="/assets/logo.png" alt="Logo" class="logo" />
+    <nav>
+      <ul>
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/calendar.html">Calendar</a></li>
+        <li><a href="/tutoring.html" class="active">Tutoring</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="tutoring">
+    <section class="intro">
+      <h1>Schedule a Tutoring Session</h1>
+      <p>Choose your preferred format, subject, and time. All sessions are priced based on format and topic. Payments are handled securely through PayPal. All times shown are in Pacific Time (PST/PDT).</p>
+      <button id="launch-scheduler">Schedule a tutoring session!</button>
+    </section>
+
+    <section id="scheduler-app" style="display: none;">
+      <!-- Scheduler steps will be dynamically inserted here by tutoring.js -->
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 From Zero to Zeta</p>
+  </footer>
+</body>
+</html>
