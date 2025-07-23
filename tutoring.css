@@ -74,3 +74,37 @@ main.tutoring p {
 .scheduler-step button:hover {
   background-color: #001f44;
 }
+
+/* pricing tables */
+.pricing-table {
+  margin: 2rem auto;
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 800px;
+  background-color: #fefefe;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.pricing-table h3 {
+  text-align: left;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+}
+
+.pricing-table table {
+  width: 100%;
+  border: 1px solid #ccc;
+}
+
+.pricing-table th,
+.pricing-table td {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+.pricing-table th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+  color: var(--primary-color);
+}
