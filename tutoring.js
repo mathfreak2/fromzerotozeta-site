@@ -1,3 +1,5 @@
+// tutoring.js — Step 1: Format selection → Step 2: Subject selection → Step 3: Time selection (coming soon)
+
 document.addEventListener("DOMContentLoaded", () => {
   const launchButton = document.getElementById("launch-scheduler");
   const appContainer = document.getElementById("scheduler-app");
@@ -14,11 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderFormatStep();
   });
 
-  function extractColumnValues(tableSection, columnIndex) {
-    const rows = tableSection.querySelectorAll("tbody tr");
-    return Array.from(rows).map(row => row.cells[columnIndex].textContent.trim());
-  }
-
   function renderFormatStep() {
     appContainer.innerHTML = "";
 
@@ -30,16 +27,16 @@ document.addEventListener("DOMContentLoaded", () => {
     section.appendChild(heading);
 
     const clone = formatPricingTable.cloneNode(true);
-    section.appendChild(clone);
 
-    const formats = extractColumnValues(formatPricingTable, 0);
-    formats.forEach(format => {
-      const btn = document.createElement("button");
-      btn.textContent = format;
-      btn.onclick = () => handleFormatSelection(format);
-      section.appendChild(btn);
+    Array.from(clone.querySelectorAll("tbody tr")).forEach(row => {
+      row.style.cursor = "pointer";
+      row.addEventListener("click", () => {
+        const format = row.cells[0].textContent.trim();
+        handleFormatSelection(format);
+      });
     });
 
+    section.appendChild(clone);
     appContainer.appendChild(section);
   }
 
@@ -61,16 +58,16 @@ document.addEventListener("DOMContentLoaded", () => {
     section.appendChild(heading);
 
     const clone = levelPricingTable.cloneNode(true);
-    section.appendChild(clone);
 
-    const levels = extractColumnValues(levelPricingTable, 0);
-    levels.forEach(level => {
-      const btn = document.createElement("button");
-      btn.textContent = level;
-      btn.onclick = () => handleLevelSelection(level);
-      section.appendChild(btn);
+    Array.from(clone.querySelectorAll("tbody tr")).forEach(row => {
+      row.style.cursor = "pointer";
+      row.addEventListener("click", () => {
+        const level = row.cells[0].textContent.trim();
+        handleLevelSelection(level);
+      });
     });
 
+    section.appendChild(clone);
     appContainer.appendChild(section);
   }
 
