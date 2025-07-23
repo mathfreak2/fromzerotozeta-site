@@ -163,6 +163,33 @@ weeklyAvailability.forEach(slot => {
           cell.classList.add("selected");
           currentSelection.startCell = cell;
           selectingStartTime = false;
+
+          const startDay = label.split(" ")[0];
+          const allBlocks = document.querySelectorAll(`.time-block[data-label^='${startDay}']`);
+
+          allBlocks.forEach(block => {
+            block.addEventListener("mouseenter", () => {
+              const endLabel = block.dataset.label;
+              const [_, endTime] = endLabel.split(" ");
+              const end = parseFloat(endTime.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
+              const [__, startTime] = currentSelection.start.split(" ");
+              const start = parseFloat(startTime.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
+              const low = Math.min(start, end);
+              const high = Math.max(start, end);
+
+              allBlocks.forEach(cell => {
+                const cellTime = parseFloat(cell.dataset.label.split(" ")[1].replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
+                cell.classList.remove("hover-highlight");
+                if (cellTime >= low && cellTime <= high) {
+                  cell.classList.add("hover-highlight");
+                }
+              });
+            });
+
+            block.addEventListener("mouseleave", () => {
+              allBlocks.forEach(cell => cell.classList.remove("hover-highlight"));
+            });
+          });
         } else {
           currentSelection.end = label;
           const lastSlot = selectedTimeSlots[selectedTimeSlots.length - 1];
