@@ -122,114 +122,85 @@ function renderTimeSelection() {
   info.textContent = "Click on available blocks to select. You'll be able to confirm and proceed to payment after clicking Next.";
   section.appendChild(info);
 
-  const table = document.createElement("table");
-  table.classList.add("availability-table");
+  const gridContainer = document.createElement("div");
+gridContainer.className = "availability-grid";
 
-  const thead = document.createElement("thead");
-  const headerRow = document.createElement("tr");
-  headerRow.appendChild(document.createElement("th")); // Empty corner cell
-  for (let hour = 12; hour < 20; hour++) {
+weeklyAvailability.forEach(slot => {
+  const dayOffset = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].indexOf(slot.day);
+  const currentDate = new Date(currentWeekStart);
+  currentDate.setDate(currentWeekStart.getDate() + dayOffset);
+  const dateLabel = currentDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+  const dayColumn = document.createElement("div");
+  dayColumn.className = "day-column";
+
+  const dayHeader = document.createElement("div");
+  dayHeader.className = "day-header";
+  dayHeader.innerHTML = `<strong>${slot.day}</strong><br><small>${dateLabel}</small>`;
+  dayColumn.appendChild(dayHeader);
+
+  for (let hour = slot.start; hour < slot.end; hour++) {
     for (let quarter = 0; quarter < 4; quarter++) {
-      const th = document.createElement("th");
+      const cell = document.createElement("div");
+      cell.className = "time-block clickable-row";
+
       const minute = quarter * 15;
       const suffix = hour < 12 ? "am" : "pm";
       const displayHour = hour % 12 === 0 ? 12 : hour % 12;
       const displayMin = minute === 0 ? ":00" : minute === 15 ? ":15" : minute === 30 ? ":30" : ":45";
-      th.textContent = `${displayHour}${displayMin}${suffix}`;
-      headerRow.appendChild(th);
-    }
-  }
-  const dateRow = document.createElement("tr");
-  dateRow.appendChild(document.createElement("td"));
+      const hourDisplay = `${displayHour}${displayMin}${suffix}`;
 
-  for (let hour = 12; hour < 20; hour++) {
-    for (let quarter = 0; quarter < 4; quarter++) {
-      const th = document.createElement("th");
-      const minute = quarter * 15;
-      const suffix = hour < 12 ? "am" : "pm";
-      const displayHour = hour % 12 === 0 ? 12 : hour % 12;
-      const displayMin = minute === 0 ? ":00" : minute === 15 ? ":15" : minute === 30 ? ":30" : ":45";
-      th.textContent = `${displayHour}${displayMin}${suffix}`;
-      headerRow.appendChild(th);
-      dateRow.appendChild(document.createElement("td"));
-    }
-  }
+      const label = `${slot.day} ${hour}:${minute < 10 ? '0' + minute : minute}`;
+      cell.dataset.label = label;
+      cell.textContent = hourDisplay;
 
-  thead.appendChild(headerRow);
-  thead.appendChild(dateRow);
-  table.appendChild(thead);
+      cell.addEventListener("click", () => {
+        const label = cell.dataset.label;
 
-  const tbody = document.createElement("tbody");
+        if (selectingStartTime) {
+          currentSelection.start = label;
+          selectedTimeSlots.push({ start: label });
+          cell.classList.add("selected");
+          currentSelection.startCell = cell;
+          selectingStartTime = false;
+        } else {
+          currentSelection.end = label;
+          const lastSlot = selectedTimeSlots[selectedTimeSlots.length - 1];
+          lastSlot.end = label;
 
-  weeklyAvailability.forEach(slot => {
-    const row = document.createElement("tr");
-    const dayCell = document.createElement("td");
-    const dayOffset = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].indexOf(slot.day);
-    const currentDate = new Date(currentWeekStart);
-    currentDate.setDate(currentWeekStart.getDate() + dayOffset);
-    const dateString = currentDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-    dayCell.innerHTML = `<strong>${slot.day}</strong><br><small>${dateString}</small>`;
-    row.appendChild(dayCell);
+          const [dayStart, timeStart] = currentSelection.start.split(" ");
+          const [dayEnd, timeEnd] = currentSelection.end.split(" ");
 
-    for (let hour = slot.start; hour < slot.end; hour++) {
-      for (let quarter = 0; quarter < 4; quarter++) {
-        const cell = document.createElement("td");
-        const minute = quarter * 15;
-        const suffix = hour < 12 ? "am" : "pm";
-        const displayHour = hour % 12 === 0 ? 12 : hour % 12;
-        const displayMin = minute === 0 ? ":00" : minute === 15 ? ":15" : minute === 30 ? ":30" : ":45";
-        const hourDisplay = `${displayHour}${displayMin}${suffix}`;
-        const label = `${slot.day} ${hour}:${minute < 10 ? '0' + minute : minute}`;
-        cell.textContent = hourDisplay;
-        cell.classList.add("clickable-row");
-        cell.dataset.label = label;
+          if (dayStart === dayEnd) {
+            const day = dayStart;
+            const start = parseFloat(timeStart.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
+            const end = parseFloat(timeEnd.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
+            const low = Math.min(start, end);
+            const high = Math.max(start, end);
 
-        cell.addEventListener("click", () => {
-          const label = cell.dataset.label;
-
-          if (selectingStartTime) {
-            currentSelection.start = label;
-            selectedTimeSlots.push({ start: label });
-            cell.classList.add("selected");
-            currentSelection.startCell = cell;
-            selectingStartTime = false;
-          } else {
-            currentSelection.end = label;
-            const lastSlot = selectedTimeSlots[selectedTimeSlots.length - 1];
-            lastSlot.end = label;
-
-            const [dayStart, timeStart] = currentSelection.start.split(" ");
-            const [dayEnd, timeEnd] = currentSelection.end.split(" ");
-
-            if (dayStart === dayEnd) {
-              const day = dayStart;
-              const start = parseFloat(timeStart.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
-              const end = parseFloat(timeEnd.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
-              const low = Math.min(start, end);
-              const high = Math.max(start, end);
-
-              const row = currentSelection.startCell.closest("tr");
-              Array.from(row.children).forEach(cell => {
-                if (cell.dataset.label && cell.dataset.label.startsWith(day)) {
-                  const hour = parseFloat(cell.dataset.label.split(" ")[1].replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
-                  if (hour >= low && hour <= high) {
-                    cell.classList.add("selected");
-                  }
+            const blocks = dayColumn.querySelectorAll(".time-block");
+            blocks.forEach(cell => {
+              if (cell.dataset.label && cell.dataset.label.startsWith(day)) {
+                const hour = parseFloat(cell.dataset.label.split(" ")[1].replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
+                if (hour >= low && hour <= high) {
+                  cell.classList.add("selected");
                 }
-              });
-            }
-            selectingStartTime = true;
+              }
+            });
           }
-          console.log("Current selection:", selectedTimeSlots);
-        });
+          selectingStartTime = true;
+        }
+        console.log("Current selection:", selectedTimeSlots);
+      });
 
-        row.appendChild(cell);
-      }
+      dayColumn.appendChild(cell);
     }
-    tbody.appendChild(row);
-  });
-table.appendChild(tbody);
-  section.appendChild(table);
+  }
+
+  gridContainer.appendChild(dayColumn);
+});
+
+section.appendChild(gridContainer);
 
   const controls = document.createElement("div");
   controls.className = "scheduler-controls";
