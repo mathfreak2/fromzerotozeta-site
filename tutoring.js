@@ -3,6 +3,13 @@
   document.addEventListener("DOMContentLoaded", () => {
     const launchButton = document.getElementById("launch-scheduler");
     const appContainer = document.getElementById("scheduler-app");
+
+  // Example hardcoded availability (can be refined)
+  const weeklyAvailability = [
+    { day: "Monday", start: 12, end: 20 },
+    { day: "Wednesday", start: 12, end: 20 },
+    { day: "Thursday", start: 12, end: 20 }
+  ]; // Availability in 24-hour format, easy to update
     const introSection = document.querySelector(".intro");
   
     // Reference pricing tables from static HTML
@@ -48,6 +55,81 @@
       section.appendChild(controls);
   
       appContainer.appendChild(section);
+}
+
+function renderTimeSelection() {
+  appContainer.innerHTML = "";
+
+  const section = document.createElement("div");
+  section.className = "scheduler-step";
+
+  const heading = document.createElement("h2");
+  heading.textContent = "Choose available time slots (PST/PDT)";
+  section.appendChild(heading);
+
+  const info = document.createElement("p");
+  info.textContent = "Click on available blocks to select. You'll be able to confirm and proceed to payment after clicking Next.";
+  section.appendChild(info);
+
+  const table = document.createElement("table");
+  table.classList.add("availability-table");
+  const tbody = document.createElement("tbody");
+
+  weeklyAvailability.forEach(slot => {
+    const row = document.createElement("tr");
+    const dayCell = document.createElement("td");
+    dayCell.textContent = slot.day;
+    row.appendChild(dayCell);
+
+    for (let hour = slot.start; hour < slot.end; hour++) {
+      const cell = document.createElement("td");
+      const label = `${slot.day} ${hour}:00`;
+      cell.textContent = `${hour}:00`;
+      cell.classList.add("clickable-row");
+      cell.dataset.label = label;
+
+      cell.addEventListener("click", () => {
+        cell.classList.toggle("selected");
+        if (selectedTimeSlots.includes(label)) {
+          selectedTimeSlots = selectedTimeSlots.filter(t => t !== label);
+        } else {
+          selectedTimeSlots.push(label);
+        }
+        console.log("Current selection:", selectedTimeSlots);
+      });
+
+      row.appendChild(cell);
+    }
+    tbody.appendChild(row);
+  });
+
+  table.appendChild(tbody);
+  section.appendChild(table);
+
+  const controls = document.createElement("div");
+  controls.className = "scheduler-controls";
+
+  const backBtn = document.createElement("button");
+  backBtn.className = "back";
+  backBtn.textContent = "Back";
+  backBtn.onclick = () => renderLevelStep();
+  controls.appendChild(backBtn);
+
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "next";
+  nextBtn.textContent = "Next";
+  nextBtn.onclick = () => {
+    if (selectedTimeSlots.length === 0) {
+      alert("Please select at least one time slot before continuing.");
+      return;
+    }
+    // TODO: reserve slots and proceed to payment screen
+    console.log("Proceeding with:", selectedTimeSlots);
+  };
+  controls.appendChild(nextBtn);
+
+  section.appendChild(controls);
+  appContainer.appendChild(section);
     }
   
     let selectedFormat = null;
@@ -90,11 +172,12 @@
     }
   
     let selectedLevel = null;
+let selectedTimeSlots = [];
   
     function handleLevelSelection(level) {
-      selectedLevel = level;
-      console.log("Selected format:", selectedFormat);
-      console.log("Selected level:", selectedLevel);
-      // TODO: renderTimeSelection();
-    }
+  selectedLevel = level;
+  console.log("Selected format:", selectedFormat);
+  console.log("Selected level:", selectedLevel);
+  renderTimeSelection();
+}
   });
