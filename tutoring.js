@@ -65,6 +65,52 @@ function renderTimeSelection() {
 
   const heading = document.createElement("h2");
   heading.textContent = "Choose available time slots (PST/PDT)";
+
+  const nav = document.createElement("div");
+  nav.className = "week-nav";
+
+  const prevBtn = document.createElement("button");
+  prevBtn.textContent = "← Previous Week";
+  prevBtn.disabled = true;
+
+  const nextBtn = document.createElement("button");
+  nextBtn.textContent = "Next Week →";
+
+  const weekInfo = document.createElement("span");
+  weekInfo.className = "week-info";
+  const today = new Date();
+  let currentWeekStart = new Date(today.setDate(today.getDate() - today.getDay() + 1));
+
+  function updateWeekDisplay() {
+    const endOfWeek = new Date(currentWeekStart);
+    endOfWeek.setDate(endOfWeek.getDate() + 6);
+    weekInfo.textContent = `${currentWeekStart.toDateString()} - ${endOfWeek.toDateString()}`;
+  }
+
+  updateWeekDisplay();
+
+  nextBtn.onclick = () => {
+    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+    prevBtn.disabled = false;
+    updateWeekDisplay();
+    renderTimeSelection();
+  };
+
+  prevBtn.onclick = () => {
+    const today = new Date();
+    const thisWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1));
+    if (currentWeekStart > thisWeek) {
+      currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+      updateWeekDisplay();
+      if (currentWeekStart <= thisWeek) prevBtn.disabled = true;
+      renderTimeSelection();
+    }
+  };
+
+  nav.appendChild(prevBtn);
+  nav.appendChild(weekInfo);
+  nav.appendChild(nextBtn);
+  section.appendChild(nav);
   section.appendChild(heading);
 
   const info = document.createElement("p");
@@ -73,12 +119,51 @@ function renderTimeSelection() {
 
   const table = document.createElement("table");
   table.classList.add("availability-table");
+
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  headerRow.appendChild(document.createElement("th")); // Empty corner cell
+  for (let hour = 12; hour < 20; hour++) {
+    for (let quarter = 0; quarter < 4; quarter++) {
+      const th = document.createElement("th");
+      const minute = quarter * 15;
+      const suffix = hour < 12 ? "am" : "pm";
+      const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+      const displayMin = minute === 0 ? ":00" : minute === 15 ? ":15" : minute === 30 ? ":30" : ":45";
+      th.textContent = `${displayHour}${displayMin}${suffix}`;
+      headerRow.appendChild(th);
+    }
+  }
+  const dateRow = document.createElement("tr");
+  dateRow.appendChild(document.createElement("td"));
+
+  for (let hour = 12; hour < 20; hour++) {
+    for (let quarter = 0; quarter < 4; quarter++) {
+      const th = document.createElement("th");
+      const minute = quarter * 15;
+      const suffix = hour < 12 ? "am" : "pm";
+      const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+      const displayMin = minute === 0 ? ":00" : minute === 15 ? ":15" : minute === 30 ? ":30" : ":45";
+      th.textContent = `${displayHour}${displayMin}${suffix}`;
+      headerRow.appendChild(th);
+      dateRow.appendChild(document.createElement("td"));
+    }
+  }
+
+  thead.appendChild(headerRow);
+  thead.appendChild(dateRow);
+  table.appendChild(thead);
+
   const tbody = document.createElement("tbody");
 
   weeklyAvailability.forEach(slot => {
     const row = document.createElement("tr");
     const dayCell = document.createElement("td");
-    dayCell.textContent = slot.day;
+    const dayOffset = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].indexOf(slot.day);
+    const currentDate = new Date(currentWeekStart);
+    currentDate.setDate(currentWeekStart.getDate() + dayOffset);
+    const dateString = currentDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    dayCell.innerHTML = `<strong>${slot.day}</strong><br><small>${dateString}</small>`;
     row.appendChild(dayCell);
 
     for (let hour = slot.start; hour < slot.end; hour++) {
@@ -113,10 +198,6 @@ function renderTimeSelection() {
 
             if (dayStart === dayEnd) {
               const day = dayStart;
-              const timeToFloat = time => {
-                const [h, m] = time.split(":".replace(/(am|pm)/g, "")).map(Number);
-                return h + (m === 30 ? 0.5 : 0);
-              };
               const start = parseFloat(timeStart.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
               const end = parseFloat(timeEnd.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
               const low = Math.min(start, end);
@@ -141,6 +222,7 @@ function renderTimeSelection() {
       }
     }
     tbody.appendChild(row);
+  });
   });
 
   table.appendChild(tbody);
