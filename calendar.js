@@ -1,27 +1,25 @@
 // calendar.js for From Zero to Zeta
 
 document.addEventListener("DOMContentLoaded", () => {
-  const calendarContainer = document.getElementById("calendar");
+  const toggleBtn = document.createElement("button");
+  toggleBtn.textContent = "Toggle Calendar View";
+  toggleBtn.style.marginBottom = "1rem";
+  toggleBtn.style.padding = "0.5rem 1rem";
+  toggleBtn.style.fontWeight = "bold";
 
-  const events = [
-  ];
+  const calendar = document.querySelector("iframe");
+  const main = document.querySelector("main");
 
-  events.forEach(event => {
-    const div = document.createElement("div");
-    div.className = "event";
-
-    const title = document.createElement("h3");
-    title.textContent = event.title;
-
-    const time = document.createElement("time");
-    time.textContent = new Date(event.date).toLocaleString();
-
-    const desc = document.createElement("p");
-    desc.textContent = event.description;
-
-    div.appendChild(title);
-    div.appendChild(time);
-    div.appendChild(desc);
-    calendarContainer.appendChild(div);
+  toggleBtn.addEventListener("click", () => {
+    if (calendar.style.display === "none") {
+      calendar.style.display = "block";
+      toggleBtn.textContent = "Hide Calendar";
+    } else {
+      calendar.style.display = "none";
+      toggleBtn.textContent = "Show Calendar";
+    }
   });
+
+  main.insertBefore(toggleBtn, calendar);
+  calendar.style.display = "block";
 });
