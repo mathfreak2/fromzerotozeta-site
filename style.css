@@ -78,3 +78,51 @@ a:hover {
   opacity: 0.5;
   text-decoration: line-through;
 }
+
+/* Homepage layout: two-column section */
+.home section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3rem;
+  margin-top: 2rem;
+}
+
+.home .logo-banner {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  margin-bottom: 2rem;
+}
+
+.home .about-column,
+.home .media-column {
+  flex: 1;
+  min-width: 280px;
+  max-width: 400px;
+}
+
+.home .about-column {
+  text-align: left;
+}
+
+.home .media-column {
+  text-align: center;
+}
+
+.home h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.home h2 {
+  font-size: 1.75rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.home p {
+  font-size: 1.1rem;
+  margin-bottom: 1.2rem;
+  line-height: 1.6;
+}
