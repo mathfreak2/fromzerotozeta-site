@@ -108,3 +108,13 @@ main.tutoring p {
   font-weight: bold;
   color: var(--primary-color);
 }
+
+/* clickable row styles */
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.clickable-row:hover {
+  background-color: #eef5ff;
+}
