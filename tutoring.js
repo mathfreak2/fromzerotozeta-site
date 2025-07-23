@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const clone = formatPricingTable.cloneNode(true);
 
     Array.from(clone.querySelectorAll("tbody tr")).forEach(row => {
-      row.style.cursor = "pointer";
+      row.classList.add("clickable-row");
       row.addEventListener("click", () => {
         const format = row.cells[0].textContent.trim();
         handleFormatSelection(format);
