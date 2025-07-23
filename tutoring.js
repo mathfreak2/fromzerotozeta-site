@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const launchButton = document.getElementById("launch-scheduler");
   const appContainer = document.getElementById("scheduler-app");
+  const introSection = document.querySelector(".intro");
 
   // Reference pricing tables from static HTML
   const formatPricingTable = document.querySelector(".pricing-table.format");
@@ -9,8 +10,14 @@ document.addEventListener("DOMContentLoaded", () => {
   launchButton.addEventListener("click", () => {
     launchButton.style.display = "none";
     appContainer.style.display = "block";
+    introSection.insertAdjacentElement("afterend", appContainer);
     renderFormatStep();
   });
+
+  function extractColumnValues(tableSection, columnIndex) {
+    const rows = tableSection.querySelectorAll("tbody tr");
+    return Array.from(rows).map(row => row.cells[columnIndex].textContent.trim());
+  }
 
   function renderFormatStep() {
     appContainer.innerHTML = "";
@@ -25,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const clone = formatPricingTable.cloneNode(true);
     section.appendChild(clone);
 
-    const formats = ["Private", "Recorded", "Livestreamed"];
+    const formats = extractColumnValues(formatPricingTable, 0);
     formats.forEach(format => {
       const btn = document.createElement("button");
       btn.textContent = format;
@@ -56,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const clone = levelPricingTable.cloneNode(true);
     section.appendChild(clone);
 
-    const levels = ["High School", "Undergraduate", "Graduate"];
+    const levels = extractColumnValues(levelPricingTable, 0);
     levels.forEach(level => {
       const btn = document.createElement("button");
       btn.textContent = level;
