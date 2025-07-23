@@ -27,7 +27,6 @@ document.addEventListener("DOMContentLoaded", () => {
     section.appendChild(heading);
 
     const clone = formatPricingTable.cloneNode(true);
-
     Array.from(clone.querySelectorAll("tbody tr")).forEach(row => {
       row.classList.add("clickable-row");
       row.addEventListener("click", () => {
@@ -35,8 +34,20 @@ document.addEventListener("DOMContentLoaded", () => {
         handleFormatSelection(format);
       });
     });
-
     section.appendChild(clone);
+
+    const controls = document.createElement("div");
+    controls.className = "scheduler-controls";
+    const cancelBtn = document.createElement("button");
+    cancelBtn.className = "cancel";
+    cancelBtn.textContent = "Cancel";
+    cancelBtn.onclick = () => {
+      appContainer.innerHTML = "";
+      launchButton.style.display = "block";
+    };
+    controls.appendChild(cancelBtn);
+    section.appendChild(controls);
+
     appContainer.appendChild(section);
   }
 
@@ -58,16 +69,24 @@ document.addEventListener("DOMContentLoaded", () => {
     section.appendChild(heading);
 
     const clone = levelPricingTable.cloneNode(true);
-
     Array.from(clone.querySelectorAll("tbody tr")).forEach(row => {
-      row.style.cursor = "pointer";
+      row.classList.add("clickable-row");
       row.addEventListener("click", () => {
         const level = row.cells[0].textContent.trim();
         handleLevelSelection(level);
       });
     });
-
     section.appendChild(clone);
+
+    const controls = document.createElement("div");
+    controls.className = "scheduler-controls";
+    const backBtn = document.createElement("button");
+    backBtn.className = "back";
+    backBtn.textContent = "Back";
+    backBtn.onclick = () => renderFormatStep();
+    controls.appendChild(backBtn);
+    section.appendChild(controls);
+
     appContainer.appendChild(section);
   }
 
