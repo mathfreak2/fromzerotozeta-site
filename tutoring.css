@@ -75,6 +75,39 @@ main.tutoring p {
   background-color: #001f44;
 }
 
+.scheduler-controls {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.scheduler-controls button {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+}
+
+.scheduler-controls .cancel {
+  background-color: #888;
+  color: white;
+}
+
+.scheduler-controls .cancel:hover {
+  background-color: #666;
+}
+
+.scheduler-controls .back {
+  background-color: #aaa;
+  color: white;
+}
+
+.scheduler-controls .back:hover {
+  background-color: #888;
+}
+
 /* pricing tables */
 .pricing-table {
   margin: 2rem auto;
