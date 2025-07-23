@@ -91,21 +91,21 @@ main.tutoring p {
 }
 
 .scheduler-controls .cancel {
-  background-color: #888;
+  background-color: #002b5c;
   color: white;
 }
 
 .scheduler-controls .cancel:hover {
-  background-color: #666;
+  background-color: #002b7c;
 }
 
 .scheduler-controls .back {
-  background-color: #aaa;
+  background-color: #002b5c;
   color: white;
 }
 
 .scheduler-controls .back:hover {
-  background-color: #888;
+  background-color: #002b7c;
 }
 
 /* pricing tables */
