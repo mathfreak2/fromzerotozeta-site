@@ -190,6 +190,32 @@ function renderTimeSelection() {
           console.log("Current selection:", selectedTimeSlots);
         });
 
+        cell.addEventListener("mouseenter", () => {
+          if (!selectingStartTime || !currentSelection.startCell) return;
+
+          const endLabel = cell.dataset.label;
+          const [dayEnd, endTime] = endLabel.split(" ");
+          const [dayStart, startTime] = currentSelection.start.split(" ");
+          if (dayStart !== dayEnd) return;
+
+          const end = parseFloat(endTime.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
+          const start = parseFloat(startTime.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
+          const low = Math.min(start, end);
+          const high = Math.max(start, end);
+
+          const allBlocks = gridContainer.querySelectorAll(`.time-block[data-label^='${dayStart}']`);
+          allBlocks.forEach(cell => {
+            const t = parseFloat(cell.dataset.label.split(" ")[1].replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
+            cell.classList.toggle("hover-highlight", t >= low && t <= high);
+          });
+        });
+
+        cell.addEventListener("mouseleave", () => {
+          if (!selectingStartTime || !currentSelection.startCell) return;
+          const blocks = gridContainer.querySelectorAll(".hover-highlight");
+          blocks.forEach(c => c.classList.remove("hover-highlight"));
+        });
+
         dayColumn.appendChild(cell);
       }
     }
