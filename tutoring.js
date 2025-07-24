@@ -127,6 +127,9 @@ function renderTimeSelection() {
   weekControls.appendChild(nextWeekBtn);
   nav.appendChild(weekControls);
 
+  const controls = document.createElement("div");
+  controls.className = "scheduler-controls";
+
   const nextBtn2 = document.createElement("button");
   nextBtn2.textContent = "Next";
   nextBtn2.onclick = () => {
