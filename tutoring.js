@@ -148,6 +148,7 @@ function renderTimeSelection() {
   const gridContainer = document.createElement("div");
   gridContainer.className = "availability-grid";
 
+  // Build calendar columns by day
   weeklyAvailability.forEach(slot => {
     const dayColumn = document.createElement("div");
     dayColumn.className = "day-column";
@@ -159,6 +160,7 @@ function renderTimeSelection() {
 
     for (let hour = slot.start; hour < slot.end; hour++) {
       for (let quarter = 0; quarter < 4; quarter++) {
+                // Create one 15-min time cell block
         const cell = document.createElement("div");
         cell.className = "time-block clickable-row";
 
@@ -172,6 +174,7 @@ function renderTimeSelection() {
         cell.dataset.label = label;
         cell.textContent = hourDisplay;
 
+        // Handle time block click to mark selection range
         cell.addEventListener("click", () => {
           const label = cell.dataset.label;
 
@@ -190,6 +193,7 @@ function renderTimeSelection() {
           console.log("Current selection:", selectedTimeSlots);
         });
 
+        // Preview selection range on hover
         cell.addEventListener("mouseenter", () => {
           if (!selectingStartTime || !currentSelection.startCell) return;
 
@@ -210,6 +214,28 @@ function renderTimeSelection() {
           });
         });
 
+        // Highlight preview on hover only while selecting end time
+        cell.addEventListener("mouseenter", () => {
+          if (!selectingStartTime || !currentSelection.startCell) return;
+
+          const endLabel = cell.dataset.label;
+          const [dayEnd, endTime] = endLabel.split(" ");
+          const [dayStart, startTime] = currentSelection.start.split(" ");
+          if (dayStart !== dayEnd) return;
+
+          const end = parseFloat(endTime.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
+          const start = parseFloat(startTime.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
+          const low = Math.min(start, end);
+          const high = Math.max(start, end);
+
+          const allBlocks = gridContainer.querySelectorAll(`.time-block[data-label^='${dayStart}']`);
+          allBlocks.forEach(c => {
+            const t = parseFloat(c.dataset.label.split(" ")[1].replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
+            c.classList.toggle("hover-highlight", t >= low && t <= high);
+          });
+        });
+
+        // Remove highlight preview when leaving block
         cell.addEventListener("mouseleave", () => {
           if (!selectingStartTime || !currentSelection.startCell) return;
           const blocks = gridContainer.querySelectorAll(".hover-highlight");
