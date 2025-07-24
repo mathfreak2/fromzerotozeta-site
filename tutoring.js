@@ -127,6 +127,8 @@ function renderTimeSelection() {
   weekControls.appendChild(nextWeekBtn);
   nav.appendChild(weekControls);
 
+  const nextBtn2 = document.createElement("button");
+  nextBtn2.textContent = "Next";
   nextBtn2.onclick = () => {
     if (selectedTimeSlots.length === 0 || !selectingStartTime) {
       alert("Please select at least one complete time range before continuing.");
