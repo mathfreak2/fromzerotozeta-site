@@ -142,7 +142,62 @@ function renderTimeSelection() {
   };
   controls.appendChild(nextBtn2);
 
-  appContainer.appendChild(nav);
+  section.appendChild(nav);
+
+  // Calendar grid container
+  const gridContainer = document.createElement("div");
+  gridContainer.className = "availability-grid";
+
+  weeklyAvailability.forEach(slot => {
+    const dayColumn = document.createElement("div");
+    dayColumn.className = "day-column";
+
+    const dayHeader = document.createElement("div");
+    dayHeader.className = "day-header";
+    dayHeader.textContent = slot.day;
+    dayColumn.appendChild(dayHeader);
+
+    for (let hour = slot.start; hour < slot.end; hour++) {
+      for (let quarter = 0; quarter < 4; quarter++) {
+        const cell = document.createElement("div");
+        cell.className = "time-block clickable-row";
+
+        const minute = quarter * 15;
+        const suffix = hour < 12 ? "am" : "pm";
+        const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+        const displayMin = minute === 0 ? ":00" : minute === 15 ? ":15" : minute === 30 ? ":30" : ":45";
+        const hourDisplay = `${displayHour}${displayMin}${suffix}`;
+
+        const label = `${slot.day} ${hour}:${minute < 10 ? '0' + minute : minute}`;
+        cell.dataset.label = label;
+        cell.textContent = hourDisplay;
+
+        cell.addEventListener("click", () => {
+          const label = cell.dataset.label;
+
+          if (selectingStartTime) {
+            currentSelection.start = label;
+            selectedTimeSlots.push({ start: label });
+            cell.classList.add("selected");
+            currentSelection.startCell = cell;
+            selectingStartTime = false;
+          } else {
+            currentSelection.end = label;
+            const lastSlot = selectedTimeSlots[selectedTimeSlots.length - 1];
+            lastSlot.end = label;
+            selectingStartTime = true;
+          }
+          console.log("Current selection:", selectedTimeSlots);
+        });
+
+        dayColumn.appendChild(cell);
+      }
+    }
+
+    gridContainer.appendChild(dayColumn);
+  });
+
+  section.appendChild(gridContainer);
   section.appendChild(controls);
   appContainer.appendChild(section);
     }
