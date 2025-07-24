@@ -142,6 +142,7 @@ function renderTimeSelection() {
   };
   controls.appendChild(nextBtn2);
 
+  appContainer.appendChild(nav);
   section.appendChild(controls);
   appContainer.appendChild(section);
     }
