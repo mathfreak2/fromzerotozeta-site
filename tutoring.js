@@ -225,7 +225,6 @@ function renderTimeSelection() {
             c.classList.toggle("hover-highlight", t >= low && t <= high);
           });
         });
-        });
 
         // When the user stops hovering a block (or moves away from the column),
 // all hover previews should be cleared to keep the visual state clean.
