@@ -160,10 +160,31 @@ controls.appendChild(nextBtn2);
     const dayColumn = document.createElement("div");
     dayColumn.className = "day-column";
 
-    const dayHeader = document.createElement("div");
-    dayHeader.className = "day-header";
-    dayHeader.textContent = slot.day;
-    dayColumn.appendChild(dayHeader);
+  const header = document.createElement("div");
+  header.className = "day-header";
+
+  // calculate the Date for this slot.day in the current weekOffset
+  const currentWeekStart = new Date(thisWeekStart.getTime()
+    + weekOffset * 7 * 24 * 60 * 60 * 1000
+  );
+  const dayOffsets = {
+    Monday:    0, Tuesday:  1, Wednesday: 2,
+    Thursday:  3, Friday:   4, Saturday:  5,
+    Sunday:    6
+  };
+  const dateObj = new Date(currentWeekStart);
+  dateObj.setDate(
+    currentWeekStart.getDate()
+    + (dayOffsets[slot.day] || 0)
+  );
+
+  // format mm/dd/yy
+  const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const dd = String(dateObj.getDate()).padStart(2, "0");
+  const yy = String(dateObj.getFullYear()).slice(-2);
+
+  header.textContent = `${slot.day} (${mm}/${dd}/${yy})`;
+  dayColumn.appendChild(header);
 
     for (let hour = slot.start; hour < slot.end; hour++) {
       for (let quarter = 0; quarter < 4; quarter++) {
