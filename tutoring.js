@@ -186,7 +186,7 @@ function renderTimeSelection() {
         cell.addEventListener("click", () => {
           const label = cell.dataset.label;
 
-          if (!selectingStartTime) {
+          if (selectingStartTime) {
             currentSelection.start = label;
             selectedTimeSlots.push({ start: label });
             cell.classList.add("selected");
@@ -207,7 +207,7 @@ function renderTimeSelection() {
 // for the potential selection range before the second click.
         // Highlight preview on hover only while selecting end time
         cell.addEventListener("mouseenter", () => {
-          if (!selectingStartTime || !currentSelection.startCell) return;
+          if (selectingStartTime || !currentSelection.startCell) return;
 
           const endLabel = cell.dataset.label;
           const [dayEnd, endTime] = endLabel.split(" ");
