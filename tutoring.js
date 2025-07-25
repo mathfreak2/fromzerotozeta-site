@@ -10,6 +10,13 @@
     { day: "Wednesday", start: 12, end: 20 },
     { day: "Thursday", start: 12, end: 20 }
   ]; // Availability in 24-hour format, easy to update
+
+// ─── week navigation state ───
+let weekOffset = 0;
+const todayDate   = new Date();
+const thisWeekStart = new Date(todayDate);
+thisWeekStart.setDate(thisWeekStart.getDate() - thisWeekStart.getDay() + 1);
+    
     const introSection = document.querySelector(".intro");
 // removed duplicate declaration of selectedFormat
   let selectedLevel = null;
@@ -70,7 +77,9 @@ function renderTimeSelection() {
 
   const heading = document.createElement("h2");
   heading.textContent = "Choose available time slots (PST/PDT)";
+  section.appendChild(heading);
 
+  // ─── week nav setup ───
   const nav = document.createElement("div");
   nav.className = "week-nav";
 
@@ -79,57 +88,42 @@ function renderTimeSelection() {
 
   const prevWeekBtn = document.createElement("button");
   prevWeekBtn.textContent = "← Previous Week";
-  prevWeekBtn.disabled = true;
-
-  const nextWeekBtn = document.createElement("button");
-  nextWeekBtn.textContent = "Next Week →";
-
-  const prevBtn = document.createElement("button");
-  prevBtn.textContent = "← Previous Week";
-  prevBtn.disabled = true;
-
-  const nextBtn = document.createElement("button"); // moved inside renderTimeSelection
-  nextBtn.textContent = "Next Week →";
+  prevWeekBtn.disabled = (weekOffset === 0);
 
   const weekInfo = document.createElement("span");
   weekInfo.className = "week-info";
-  const today = new Date();
-  let currentWeekStart = new Date(today.setDate(today.getDate() - today.getDay() + 1));
 
-  function updateWeekDisplay() {
-    const endOfWeek = new Date(currentWeekStart);
-    endOfWeek.setDate(endOfWeek.getDate() + 6);
-    weekInfo.textContent = `${currentWeekStart.toDateString()} - ${endOfWeek.toDateString()}`;
-  }
+  const nextWeekBtn = document.createElement("button");
+  nextWeekBtn.textContent = "Next Week →";
+  nextWeekBtn.disabled = (weekOffset >= 51);
 
-  updateWeekDisplay();
+  // compute and display the dates for this weekOffset
+  const currentWeekStart = new Date(thisWeekStart.getTime() + weekOffset * 7 * 24 * 60 * 60 * 1000);
+  const endOfWeek = new Date(currentWeekStart);
+  endOfWeek.setDate(endOfWeek.getDate() + 6);
+  weekInfo.textContent = `${currentWeekStart.toDateString()} - ${endOfWeek.toDateString()}`;
 
-  nextWeekBtn.onclick = () => {
-    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-    prevWeekBtn.disabled = false;
-    updateWeekDisplay();
-    renderTimeSelection();
-  };
-
+  // button handlers
   prevWeekBtn.onclick = () => {
-    const thisWeek = new Date();
-    const startOfWeek = new Date(thisWeek.setDate(thisWeek.getDate() - thisWeek.getDay() + 1));
-    if (currentWeekStart > startOfWeek) {
-      currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-      updateWeekDisplay();
-      if (currentWeekStart <= startOfWeek) prevWeekBtn.disabled = true;
+    if (weekOffset > 0) {
+      weekOffset--;
+      renderTimeSelection();
+    }
+  };
+  nextWeekBtn.onclick = () => {
+    if (weekOffset < 51) {
+      weekOffset++;
       renderTimeSelection();
     }
   };
 
-  weekControls.appendChild(prevWeekBtn);
-  weekControls.appendChild(weekInfo);
-  weekControls.appendChild(nextWeekBtn);
+  weekControls.append(prevWeekBtn, weekInfo, nextWeekBtn);
   nav.appendChild(weekControls);
+  section.appendChild(nav);
 
+  // ─── time grid and controls (unchanged) ───
   const controls = document.createElement("div");
   controls.className = "scheduler-controls";
-
   const nextBtn2 = document.createElement("button");
   nextBtn2.textContent = "Next";
   nextBtn2.onclick = () => {
@@ -137,11 +131,9 @@ function renderTimeSelection() {
       alert("Please select at least one complete time range before continuing.");
       return;
     }
-    // TODO: reserve slots and proceed to payment screen
     console.log("Proceeding with:", selectedTimeSlots);
   };
   controls.appendChild(nextBtn2);
-
   section.appendChild(nav);
 
   // Calendar grid container
