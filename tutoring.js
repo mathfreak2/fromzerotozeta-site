@@ -190,26 +190,26 @@ cell.addEventListener("click", () => {
     return h * 60 + m;
   };
 
-  // --- Deselection: if clicking an already-selected block, remove its entire range ---
+  // Deselect if clicking on an already-selected block
   if (cell.classList.contains("selected")) {
     const [day, timeRaw] = label.split(" ");
     const t = parseTime(timeRaw);
     selectedTimeSlots = selectedTimeSlots.filter(slot => {
       if (!slot.end) return true;
       const [dstart, startRaw] = slot.start.split(" ");
-      const [, endRaw] = slot.end.split(" ");
+      const [, endRaw]  = slot.end.split(" ");
       if (dstart === day) {
         const s = parseTime(startRaw);
         const e = parseTime(endRaw);
         const low = Math.min(s, e), high = Math.max(s, e);
         if (t >= low && t <= high) {
-          // clear UI
+          // clear UI for that entire slot
           const all = gridContainer.querySelectorAll(`.time-block[data-label^='${day}']`);
           all.forEach(c => {
             const mm = parseTime(c.dataset.label.split(" ")[1]);
             if (mm >= low && mm <= high) c.classList.remove("selected");
           });
-          return false;  // drop this slot
+          return false; // drop this slot object entirely
         }
       }
       return true;
@@ -218,30 +218,30 @@ cell.addEventListener("click", () => {
     return;
   }
 
-  // --- Normal selection flow ---
+  // Begin new selection
   if (selectingStartTime) {
-    // mark start
     currentSelection = { start: label, startCell: cell };
     selectedTimeSlots.push({ start: label });
     cell.classList.add("selected");
     selectingStartTime = false;
+
+  // Complete selection: only add cells that aren’t already selected
   } else {
-    // mark end & highlight full range
     currentSelection.end = label;
     const lastSlot = selectedTimeSlots[selectedTimeSlots.length - 1];
     lastSlot.end = label;
 
     const [day, startRaw] = currentSelection.start.split(" ");
-    const [, endRaw] = label.split(" ");
-    const startMinutes = parseTime(startRaw);
-    const endMinutes   = parseTime(endRaw);
-    const low = Math.min(startMinutes, endMinutes),
-          high = Math.max(startMinutes, endMinutes);
+    const [, endRaw]     = label.split(" ");
+    const a = parseTime(startRaw), b = parseTime(endRaw);
+    const low  = Math.min(a, b), high = Math.max(a, b);
 
     const all = gridContainer.querySelectorAll(`.time-block[data-label^='${day}']`);
     all.forEach(c => {
       const mins = parseTime(c.dataset.label.split(" ")[1]);
-      if (mins >= low && mins <= high) c.classList.add("selected");
+      if (mins >= low && mins <= high && !c.classList.contains("selected")) {
+        c.classList.add("selected");
+      }
     });
 
     selectingStartTime = true;
@@ -249,7 +249,6 @@ cell.addEventListener("click", () => {
 
   console.log("Current selection:", selectedTimeSlots);
 });
-
         // Preview selection range during hover after selecting a start block.
 // Only works within the same day. As the user moves their mouse
 // vertically through the grid, this provides real-time visual feedback
@@ -259,22 +258,21 @@ cell.addEventListener("mouseenter", () => {
   if (selectingStartTime || !currentSelection.startCell) return;
 
   const [dayStart, startRaw] = currentSelection.start.split(" ");
-  const [dayEnd, endRaw]     = cell.dataset.label.split(" ");
+  const [dayEnd,   endRaw]   = cell.dataset.label.split(" ");
   if (dayStart !== dayEnd) return;
 
   const parseTime = str => {
     const [h, m] = str.split(":").map(Number);
     return h * 60 + m;
   };
-  const a = parseTime(startRaw),
-        b = parseTime(endRaw),
-        low = Math.min(a, b),
-        high = Math.max(a, b);
+  const a = parseTime(startRaw), b = parseTime(endRaw);
+  const low  = Math.min(a, b), high = Math.max(a, b);
 
   const all = gridContainer.querySelectorAll(`.time-block[data-label^='${dayStart}']`);
   all.forEach(c => {
     const t = parseTime(c.dataset.label.split(" ")[1]);
-    c.classList.toggle("hover-highlight", t >= low && t <= high);
+    // only preview un-selected cells in range
+    c.classList.toggle("hover-highlight", t >= low && t <= high && !c.classList.contains("selected"));
   });
 });
 
