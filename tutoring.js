@@ -121,19 +121,32 @@ function renderTimeSelection() {
   nav.appendChild(weekControls);
   section.appendChild(nav);
 
-  // ─── time grid and controls (unchanged) ───
-  const controls = document.createElement("div");
-  controls.className = "scheduler-controls";
-  const nextBtn2 = document.createElement("button");
-  nextBtn2.textContent = "Next";
-  nextBtn2.onclick = () => {
-    if (selectedTimeSlots.length === 0 || !selectingStartTime) {
-      alert("Please select at least one complete time range before continuing.");
-      return;
-    }
-    console.log("Proceeding with:", selectedTimeSlots);
-  };
-  controls.appendChild(nextBtn2);
+// ─── time grid and controls ───
+const controls = document.createElement("div");
+controls.className = "scheduler-controls";
+
+// ← Back button: returns to level selection, but keeps your time slots in memory
+const backBtn = document.createElement("button");
+backBtn.className = "back";
+backBtn.textContent = "← Back";
+backBtn.onclick = () => {
+  renderLevelStep();
+};
+controls.appendChild(backBtn);
+
+// Next button: proceeds to review
+const nextBtn2 = document.createElement("button");
+nextBtn2.textContent = "Next";
+nextBtn2.onclick = () => {
+  if (selectedTimeSlots.length === 0 || !selectingStartTime) {
+    alert("Please select at least one complete time range before continuing.");
+    return;
+  }
+  console.log("Proceeding with:", selectedTimeSlots);
+  renderReviewStep();  // or whatever your review‐rendering function is called
+};
+controls.appendChild(nextBtn2);
+
   section.appendChild(nav);
 
   // Calendar grid container
