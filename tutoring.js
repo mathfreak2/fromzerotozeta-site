@@ -148,7 +148,9 @@ function renderTimeSelection() {
   const gridContainer = document.createElement("div");
   gridContainer.className = "availability-grid";
 
-  // Build calendar columns by day
+  // Iterate through the predefined availability schedule and create one
+// column per available day. Each column will display clickable 15-minute
+// time blocks labeled in 12-hour AM/PM format.
   weeklyAvailability.forEach(slot => {
     const dayColumn = document.createElement("div");
     dayColumn.className = "day-column";
@@ -160,7 +162,10 @@ function renderTimeSelection() {
 
     for (let hour = slot.start; hour < slot.end; hour++) {
       for (let quarter = 0; quarter < 4; quarter++) {
-                // Create one 15-min time cell block
+                // For each hour chunk, divide it into four 15-minute intervals.
+// Each resulting time block is a div that can be selected or hovered
+// over to preview a time range. It holds a data-label to track its
+// time reference in the logic.
         const cell = document.createElement("div");
         cell.className = "time-block clickable-row";
 
@@ -174,7 +179,10 @@ function renderTimeSelection() {
         cell.dataset.label = label;
         cell.textContent = hourDisplay;
 
-        // Handle time block click to mark selection range
+        // Handle time block click to begin or complete a selection.
+// First click marks the start time, second click marks the end time.
+// The selected range will be stored in selectedTimeSlots and
+// visually highlighted by adding the "selected" class to the involved blocks.
         cell.addEventListener("click", () => {
           const label = cell.dataset.label;
 
@@ -193,27 +201,10 @@ function renderTimeSelection() {
           console.log("Current selection:", selectedTimeSlots);
         });
 
-        // Preview selection range on hover
-        cell.addEventListener("mouseenter", () => {
-          if (!selectingStartTime || !currentSelection.startCell) return;
-
-          const endLabel = cell.dataset.label;
-          const [dayEnd, endTime] = endLabel.split(" ");
-          const [dayStart, startTime] = currentSelection.start.split(" ");
-          if (dayStart !== dayEnd) return;
-
-          const end = parseFloat(endTime.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
-          const start = parseFloat(startTime.replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
-          const low = Math.min(start, end);
-          const high = Math.max(start, end);
-
-          const allBlocks = gridContainer.querySelectorAll(`.time-block[data-label^='${dayStart}']`);
-          allBlocks.forEach(cell => {
-            const t = parseFloat(cell.dataset.label.split(" ")[1].replace(":15", ".25").replace(":30", ".5").replace(":45", ".75"));
-            cell.classList.toggle("hover-highlight", t >= low && t <= high);
-          });
-        });
-
+        // Preview selection range during hover after selecting a start block.
+// Only works within the same day. As the user moves their mouse
+// vertically through the grid, this provides real-time visual feedback
+// for the potential selection range before the second click.
         // Highlight preview on hover only while selecting end time
         cell.addEventListener("mouseenter", () => {
           if (!selectingStartTime || !currentSelection.startCell) return;
@@ -234,8 +225,10 @@ function renderTimeSelection() {
             c.classList.toggle("hover-highlight", t >= low && t <= high);
           });
         });
+        });
 
-        // Remove highlight preview when leaving block
+        // When the user stops hovering a block (or moves away from the column),
+// all hover previews should be cleared to keep the visual state clean.
         cell.addEventListener("mouseleave", () => {
           if (!selectingStartTime || !currentSelection.startCell) return;
           const blocks = gridContainer.querySelectorAll(".hover-highlight");
