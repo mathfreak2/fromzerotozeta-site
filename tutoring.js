@@ -171,6 +171,29 @@ function renderTimeSelection() {
         cell.dataset.label = label;
         cell.textContent = hourDisplay;
 
+          // ─── re-populate any selections for this week ───
+  selectedTimeSlots
+    .filter(slot => slot.week === weekOffset && slot.end)
+    .forEach(slot => {
+      const [day, startRaw] = slot.start.split(" ");
+      const [,   endRaw]   = slot.end.split(" ");
+      const parseTime = str => {
+        const [h, m] = str.split(":").map(Number);
+        return h * 60 + m;
+      };
+      const s = parseTime(startRaw), e = parseTime(endRaw);
+      const low  = Math.min(s, e), high = Math.max(s, e);
+
+      gridContainer
+        .querySelectorAll(`.time-block[data-label^='${day}']`)
+        .forEach(c => {
+          const mins = parseTime(c.dataset.label.split(" ")[1]);
+          if (mins >= low && mins <= high) {
+            c.classList.add("selected");
+          }
+        });
+    });
+
         // Handle time block click to begin or complete a selection.
 // First click marks the start time, second click marks the end time.
 // The selected range will be stored in selectedTimeSlots and
@@ -182,84 +205,101 @@ cell.addEventListener("click", () => {
     return h * 60 + m;
   };
 
-  // Deselection if clicking an already-selected cell
+  // ─── Deselection ───
   if (cell.classList.contains("selected")) {
     const [day, timeRaw] = label.split(" ");
     const t = parseTime(timeRaw);
     selectedTimeSlots = selectedTimeSlots.filter(slot => {
-      if (!slot.end) return true;
-      const [dstart, startRaw] = slot.start.split(" ");
-      const [, endRaw] = slot.end.split(" ");
-      if (dstart === day) {
+      if (slot.week !== weekOffset || !slot.end) return true;
+      const [d, startRaw] = slot.start.split(" ");
+      const [, endRaw]    = slot.end.split(" ");
+      if (d === day) {
         const s = parseTime(startRaw), e = parseTime(endRaw);
-        const low = Math.min(s,e), high = Math.max(s,e);
+        const low = Math.min(s, e), high = Math.max(s, e);
         if (t >= low && t <= high) {
-          // clear UI for that slot
-          const all = gridContainer.querySelectorAll(`.time-block[data-label^='${day}']`);
-          all.forEach(c => {
-            const mm = parseTime(c.dataset.label.split(" ")[1]);
-            if (mm >= low && mm <= high) c.classList.remove("selected");
-          });
-          return false;  // drop from array
+          // clear UI
+          gridContainer
+            .querySelectorAll(`.time-block[data-label^='${day}']`)
+            .forEach(c => {
+              const mm = parseTime(c.dataset.label.split(" ")[1]);
+              if (mm >= low && mm <= high) c.classList.remove("selected");
+            });
+          return false; // remove this slot
         }
       }
       return true;
     });
   }
+  // ─── Start new selection ───
   else if (selectingStartTime) {
-    // start new range
-    currentSelection = { start: label, startCell: cell };
-    selectedTimeSlots.push({ start: label });
+    currentSelection = { week: weekOffset, start: label, startCell: cell };
+    selectedTimeSlots.push({ week: weekOffset, start: label });
     cell.classList.add("selected");
     selectingStartTime = false;
   }
+  // ─── Complete range (no overlaps) ───
   else {
-    // finish range, skipping already-selected blocks
     currentSelection.end = label;
     const lastSlot = selectedTimeSlots[selectedTimeSlots.length - 1];
-    lastSlot.end = label;
+    lastSlot.end  = label;
+    lastSlot.week = weekOffset;
 
     const [day, startRaw] = currentSelection.start.split(" ");
-    const [, endRaw] = label.split(" ");
+    const [,   endRaw]   = label.split(" ");
     const a = parseTime(startRaw), b = parseTime(endRaw);
-    const low = Math.min(a,b), high = Math.max(a,b);
+    const low  = Math.min(a, b), high = Math.max(a, b);
 
-    const all = gridContainer.querySelectorAll(`.time-block[data-label^='${day}']`);
-    all.forEach(c => {
-      const mins = parseTime(c.dataset.label.split(" ")[1]);
-      if (mins >= low && mins <= high && !c.classList.contains("selected")) {
-        c.classList.add("selected");
-      }
-    });
+    gridContainer
+      .querySelectorAll(`.time-block[data-label^='${day}']`)
+      .forEach(c => {
+        const mins = parseTime(c.dataset.label.split(" ")[1]);
+        if (mins >= low && mins <= high && !c.classList.contains("selected")) {
+          c.classList.add("selected");
+        }
+      });
 
     selectingStartTime = true;
   }
 
-  // ─── summary console.log ───
+  // ─── Enhanced review log with full dates ───
   const formatTime = str => {
     const [h, m] = str.split(":").map(Number);
     const suffix = h < 12 ? "am" : "pm";
-    const hour = h % 12 === 0 ? 12 : h % 12;
-    const mm = m.toString().padStart(2, "0");
-    return `${hour}:${mm}${suffix}`;
+    const hr = h % 12 === 0 ? 12 : h % 12;
+    return `${hr}:${m.toString().padStart(2,"0")}${suffix}`;
+  };
+
+  const dayIndexMap = {
+    "Sunday":    0,
+    "Monday":    1,
+    "Tuesday":   2,
+    "Wednesday": 3,
+    "Thursday":  4,
+    "Friday":    5,
+    "Saturday":  6
   };
 
   const humanRanges = selectedTimeSlots
     .filter(slot => slot.end)
     .map(slot => {
+      const base = new Date(thisWeekStart.getTime() + slot.week * 7*24*60*60*1000);
       const [day, startRaw] = slot.start.split(" ");
-      const [, endRaw] = slot.end.split(" ");
-      return `${day} ${formatTime(startRaw)}–${formatTime(endRaw)}`;
+      const [,   endRaw]   = slot.end.split(" ");
+      const dayIdx = dayIndexMap[day];
+      const actualDate = new Date(base.getTime() + (dayIdx-1)*24*60*60*1000);
+      // format date as "Mon Jul 28, 2025"
+      const dateStr = actualDate.toDateString().split(" ").slice(0,4).join(" ");
+      return `${dateStr} ${formatTime(startRaw)}–${formatTime(endRaw)}`;
     });
 
   const totalMin = selectedTimeSlots.reduce((sum, slot) => {
     if (!slot.end) return sum;
-    const [ , s] = slot.start.split(" ");
-    const [ , e] = slot.end.split(" ");
-    return sum + (parseTime(e) - parseTime(s));
+    const a = parseTime(slot.start.split(" ")[1]);
+    const b = parseTime(slot.end.split(" ")[1]);
+    return sum + Math.abs(b - a);
   }, 0);
+  const totalHrs = (totalMin/60).toFixed(2);
 
-  const totalHrs = (totalMin / 60).toFixed(2);
   console.log(
     "Review selection →",
     humanRanges.length ? humanRanges.join(", ") : "*(none complete)*",
