@@ -183,23 +183,43 @@ function renderTimeSelection() {
 // First click marks the start time, second click marks the end time.
 // The selected range will be stored in selectedTimeSlots and
 // visually highlighted by adding the "selected" class to the involved blocks.
-        cell.addEventListener("click", () => {
-          const label = cell.dataset.label;
+cell.addEventListener("click", () => {
+  const label = cell.dataset.label;
 
-          if (selectingStartTime) {
-            currentSelection.start = label;
-            selectedTimeSlots.push({ start: label });
-            cell.classList.add("selected");
-            currentSelection.startCell = cell;
-            selectingStartTime = false;
-          } else {
-            currentSelection.end = label;
-            const lastSlot = selectedTimeSlots[selectedTimeSlots.length - 1];
-            lastSlot.end = label;
-            selectingStartTime = true;
-          }
-          console.log("Current selection:", selectedTimeSlots);
-        });
+  if (selectingStartTime) {
+    currentSelection = { start: label, startCell: cell };
+    selectedTimeSlots.push({ start: label }); // temp slot
+    cell.classList.add("selected");
+    selectingStartTime = false;
+  } else {
+    currentSelection.end = label;
+    const lastSlot = selectedTimeSlots[selectedTimeSlots.length - 1];
+    lastSlot.end = label;
+
+    const [day, startTimeRaw] = currentSelection.start.split(" ");
+    const [, endTimeRaw] = label.split(" ");
+    const parseTime = str => {
+      const [h, m] = str.split(":").map(Number);
+      return h * 60 + m;
+    };
+    const startMinutes = parseTime(startTimeRaw);
+    const endMinutes = parseTime(endTimeRaw);
+    const low = Math.min(startMinutes, endMinutes);
+    const high = Math.max(startMinutes, endMinutes);
+
+    const allBlocks = gridContainer.querySelectorAll(`.time-block[data-label^='${day}']`);
+    allBlocks.forEach(c => {
+      const minutes = parseTime(c.dataset.label.split(" ")[1]);
+      if (minutes >= low && minutes <= high) {
+        c.classList.add("selected");
+      }
+    });
+
+    selectingStartTime = true;
+  }
+
+  console.log("Current selection:", selectedTimeSlots);
+});
 
         // Preview selection range during hover after selecting a start block.
 // Only works within the same day. As the user moves their mouse
