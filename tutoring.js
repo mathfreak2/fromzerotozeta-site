@@ -190,51 +190,47 @@ cell.addEventListener("click", () => {
     return h * 60 + m;
   };
 
-  // Deselect if clicking on an already-selected block
+  // Deselection if clicking an already-selected cell
   if (cell.classList.contains("selected")) {
     const [day, timeRaw] = label.split(" ");
     const t = parseTime(timeRaw);
     selectedTimeSlots = selectedTimeSlots.filter(slot => {
       if (!slot.end) return true;
       const [dstart, startRaw] = slot.start.split(" ");
-      const [, endRaw]  = slot.end.split(" ");
+      const [, endRaw] = slot.end.split(" ");
       if (dstart === day) {
-        const s = parseTime(startRaw);
-        const e = parseTime(endRaw);
-        const low = Math.min(s, e), high = Math.max(s, e);
+        const s = parseTime(startRaw), e = parseTime(endRaw);
+        const low = Math.min(s,e), high = Math.max(s,e);
         if (t >= low && t <= high) {
-          // clear UI for that entire slot
+          // clear UI for that slot
           const all = gridContainer.querySelectorAll(`.time-block[data-label^='${day}']`);
           all.forEach(c => {
             const mm = parseTime(c.dataset.label.split(" ")[1]);
             if (mm >= low && mm <= high) c.classList.remove("selected");
           });
-          return false; // drop this slot object entirely
+          return false;  // drop from array
         }
       }
       return true;
     });
-    console.log("Updated selections:", selectedTimeSlots);
-    return;
   }
-
-  // Begin new selection
-  if (selectingStartTime) {
+  else if (selectingStartTime) {
+    // start new range
     currentSelection = { start: label, startCell: cell };
     selectedTimeSlots.push({ start: label });
     cell.classList.add("selected");
     selectingStartTime = false;
-
-  // Complete selection: only add cells that aren’t already selected
-  } else {
+  }
+  else {
+    // finish range, skipping already-selected blocks
     currentSelection.end = label;
     const lastSlot = selectedTimeSlots[selectedTimeSlots.length - 1];
     lastSlot.end = label;
 
     const [day, startRaw] = currentSelection.start.split(" ");
-    const [, endRaw]     = label.split(" ");
+    const [, endRaw] = label.split(" ");
     const a = parseTime(startRaw), b = parseTime(endRaw);
-    const low  = Math.min(a, b), high = Math.max(a, b);
+    const low = Math.min(a,b), high = Math.max(a,b);
 
     const all = gridContainer.querySelectorAll(`.time-block[data-label^='${day}']`);
     all.forEach(c => {
@@ -247,7 +243,36 @@ cell.addEventListener("click", () => {
     selectingStartTime = true;
   }
 
-  console.log("Current selection:", selectedTimeSlots);
+  // ─── summary console.log ───
+  const formatTime = str => {
+    const [h, m] = str.split(":").map(Number);
+    const suffix = h < 12 ? "am" : "pm";
+    const hour = h % 12 === 0 ? 12 : h % 12;
+    const mm = m.toString().padStart(2, "0");
+    return `${hour}:${mm}${suffix}`;
+  };
+
+  const humanRanges = selectedTimeSlots
+    .filter(slot => slot.end)
+    .map(slot => {
+      const [day, startRaw] = slot.start.split(" ");
+      const [, endRaw] = slot.end.split(" ");
+      return `${day} ${formatTime(startRaw)}–${formatTime(endRaw)}`;
+    });
+
+  const totalMin = selectedTimeSlots.reduce((sum, slot) => {
+    if (!slot.end) return sum;
+    const [ , s] = slot.start.split(" ");
+    const [ , e] = slot.end.split(" ");
+    return sum + (parseTime(e) - parseTime(s));
+  }, 0);
+
+  const totalHrs = (totalMin / 60).toFixed(2);
+  console.log(
+    "Review selection →",
+    humanRanges.length ? humanRanges.join(", ") : "*(none complete)*",
+    "| Total hours:", totalHrs
+  );
 });
         // Preview selection range during hover after selecting a start block.
 // Only works within the same day. As the user moves their mouse
@@ -266,13 +291,15 @@ cell.addEventListener("mouseenter", () => {
     return h * 60 + m;
   };
   const a = parseTime(startRaw), b = parseTime(endRaw);
-  const low  = Math.min(a, b), high = Math.max(a, b);
+  const low = Math.min(a,b), high = Math.max(a,b);
 
   const all = gridContainer.querySelectorAll(`.time-block[data-label^='${dayStart}']`);
   all.forEach(c => {
     const t = parseTime(c.dataset.label.split(" ")[1]);
     // only preview un-selected cells in range
-    c.classList.toggle("hover-highlight", t >= low && t <= high && !c.classList.contains("selected"));
+    c.classList.toggle("hover-highlight",
+      t >= low && t <= high && !c.classList.contains("selected")
+    );
   });
 });
 
@@ -282,7 +309,6 @@ cell.addEventListener("mouseleave", () => {
   const hov = gridContainer.querySelectorAll(".hover-highlight");
   hov.forEach(c => c.classList.remove("hover-highlight"));
 });
-
         dayColumn.appendChild(cell);
       }
     }
