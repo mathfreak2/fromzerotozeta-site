@@ -171,29 +171,6 @@ function renderTimeSelection() {
         cell.dataset.label = label;
         cell.textContent = hourDisplay;
 
-          // ─── re-populate any selections for this week ───
-  selectedTimeSlots
-    .filter(slot => slot.week === weekOffset && slot.end)
-    .forEach(slot => {
-      const [day, startRaw] = slot.start.split(" ");
-      const [,   endRaw]   = slot.end.split(" ");
-      const parseTime = str => {
-        const [h, m] = str.split(":").map(Number);
-        return h * 60 + m;
-      };
-      const s = parseTime(startRaw), e = parseTime(endRaw);
-      const low  = Math.min(s, e), high = Math.max(s, e);
-
-      gridContainer
-        .querySelectorAll(`.time-block[data-label^='${day}']`)
-        .forEach(c => {
-          const mins = parseTime(c.dataset.label.split(" ")[1]);
-          if (mins >= low && mins <= high) {
-            c.classList.add("selected");
-          }
-        });
-    });
-
         // Handle time block click to begin or complete a selection.
 // First click marks the start time, second click marks the end time.
 // The selected range will be stored in selectedTimeSlots and
@@ -348,6 +325,37 @@ cell.addEventListener("mouseleave", () => {
     gridContainer.appendChild(dayColumn);
   });
 
+  // ─── repopulate any previously-selected slots for this week ───
+selectedTimeSlots
+  .filter(slot => slot.week === weekOffset && slot.end)
+  .forEach(slot => {
+    const [ day, startRaw ] = slot.start.split(" ");
+    const [,   endRaw   ] = slot.end.split(" ");
+
+    // helper to convert "HH:MM" → minutes since midnight
+    const parseTime = str => {
+      const [ h, m ] = str.split(":").map(Number);
+      return h * 60 + m;
+    };
+
+    const s = parseTime(startRaw),
+          e = parseTime(endRaw),
+          low  = Math.min(s, e),
+          high = Math.max(s, e);
+
+    gridContainer
+      .querySelectorAll(`.time-block[data-label^='${day}']`)
+      .forEach(cell => {
+        const mins = parseTime(cell.dataset.label.split(" ")[1]);
+        if (mins >= low && mins <= high) {
+          cell.classList.add("selected");
+        }
+      });
+  });
+
+// … then append the grid (with selections re-highlighted) …
+section.appendChild(gridContainer);
+  
   section.appendChild(gridContainer);
   section.appendChild(controls);
   appContainer.appendChild(section);
