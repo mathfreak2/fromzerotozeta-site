@@ -1,7 +1,7 @@
 //   // tutoring.js — Step 1: Format selection → Step 2: Subject selection → Step 3: Time selection (coming soon)
   
 document.addEventListener("DOMContentLoaded", () => {
-  const scheduleBtn = document.getElementById("schedule-btn");
+  const scheduleBtn = document.getElementById("launch-scheduler");
   
   // Remove any existing click listeners by cloning the node
   const cleanBtn = scheduleBtn.cloneNode(true);
