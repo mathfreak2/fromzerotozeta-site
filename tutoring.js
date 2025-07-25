@@ -186,7 +186,7 @@ function renderTimeSelection() {
         cell.addEventListener("click", () => {
           const label = cell.dataset.label;
 
-          if (selectingStartTime) {
+          if (!selectingStartTime) {
             currentSelection.start = label;
             selectedTimeSlots.push({ start: label });
             cell.classList.add("selected");
